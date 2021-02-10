@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Quiz</string>
+    <string name="home">Home</string>
+    <string name="submit">Submit</string>
+    <string name="start">Start</string>
+    <string name="quiz">Quiz</string>
+    <string name="please_input_your_name_before_start">Please input your name before start</string>
+    <string name="back"><![CDATA[<<]]></string>
+    <string name="next">Next</string>
+    <string name="your_score_is">Your score is:</string>
+</resources>
