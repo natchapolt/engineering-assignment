@@ -79,8 +79,12 @@ func handleFunc(resp http.ResponseWriter, req *http.Request) {
 		resp.WriteHeader(http.StatusOK)
 		fmt.Fprint(resp, "form saved")
 	case http.MethodGet:
-		resp.WriteHeader(http.StatusOK)
-		fmt.Fprint(resp, "under construction")
+		if req.RequestURI != "/" {
+			http.FileServer(http.Dir("./static")).ServeHTTP(resp, req)
+		} else {
+			resp.WriteHeader(http.StatusOK)
+			fmt.Fprint(resp, "under construction, todo: list all form")
+		}
 	default:
 		log.Println("error no 404")
 		resp.WriteHeader(http.StatusNotFound)
