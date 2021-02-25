@@ -14,7 +14,7 @@ import (
 	"time"
 
 	env "github.com/joho/godotenv"
-	)
+)
 
 const envFile = ".env"
 const dataFile = "data/forms.json"
@@ -107,6 +107,7 @@ func run() (s *http.Server) {
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		Handler:        mux,
 	}
 
 	go func() {
