@@ -37,7 +37,25 @@ func TestHandleFunc_GET_Success(t *testing.T) {
 	}
 }
 
-func TestHandleFunc_GET_NotFound(t *testing.T) {
+func TestHandleFunc_GET_Page_Success(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/form.html", nil)
+	handleFunc(w, req)
+	if w.Code != http.StatusOK {
+		t.Fail()
+	}
+}
+
+func TestHandleFunc_GET_Page_NotFound(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/norm.html", nil)
+	handleFunc(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Fail()
+	}
+}
+
+func TestHandleFunc_PUT_NotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPut, "/", nil)
 	handleFunc(w, req)
