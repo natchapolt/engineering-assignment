@@ -53,6 +53,22 @@ func TestHandleFunc_POST_Success(t *testing.T) {
 	}
 }
 
+func TestHandleFunc_POST_BadRequest(t *testing.T) {
+	w := httptest.NewRecorder()
+	data := url.Values{}
+	data.Set("first_name", "John")
+	data.Set("last_name", "Doe")
+	data.Set("email", "email@example.com")
+	// data.Set("phone_number", "0819999999")
+	req, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(data.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	handleFunc(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fail()
+	}
+}
+
 func TestHandleFunc_GET_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 
