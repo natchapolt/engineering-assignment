@@ -10,11 +10,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"reflect"
 	"syscall"
+	"text/template"
 	"time"
 
 	env "github.com/joho/godotenv"
-	)
+)
 
 const envFile = ".env"
 const dataFile = "data/forms.json"
@@ -45,7 +48,7 @@ func (f formInput) save() error {
 	if err != nil {
 		return err
 	}
-	forms = []formInput{f}
+	forms = append(forms, f)
 	toSave, err := json.Marshal(forms)
 	if err != nil {
 		return err
@@ -63,7 +66,12 @@ func handleFunc(resp http.ResponseWriter, req *http.Request) {
 			fmt.Fprint(resp, err.Error())
 			return
 		}
-		f := formInput{}
+		f := formInput{
+			FirstName:   req.PostFormValue("first_name"),
+			LastName:    req.PostFormValue("last_name"),
+			Email:       req.PostFormValue("email"),
+			PhoneNumber: req.PostFormValue("phone_number"),
+		}
 		err = f.validate()
 		if err != nil {
 			resp.WriteHeader(http.StatusBadRequest)
@@ -77,12 +85,67 @@ func handleFunc(resp http.ResponseWriter, req *http.Request) {
 			return
 		}
 		resp.WriteHeader(http.StatusOK)
-		fmt.Fprint(resp, "form saved")
+		fmt.Fprintln(resp, "<p>form saved</p>")
+		fmt.Fprintln(resp, "<a href=\"http://localhost:8080\">back home</a>")
 	case http.MethodGet:
+		filename := fmt.Sprint(req.URL)
+		if filename == "/" {
+			filename = "index.html"
+		} else if filename[0] == '/' {
+			filename = filename[1:]
+		}
+
+		// get templated-html page path
+		pg := filepath.Join("static", filename)
+		tmpl, _ := template.ParseFiles(pg)
+
+		// Return a 404 if the template doesn't exist
+		_, err := os.Stat(pg)
+		if err != nil {
+			if os.IsNotExist(err) {
+				http.NotFound(resp, req)
+				return
+			}
+		}
+
+		// build table header for index.html
+		if filename == "index.html" {
+			file, err := ioutil.ReadFile(dataFile)
+			if err != nil {
+				resp.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprint(resp, err.Error())
+				return
+			}
+			var forms []formInput
+			err = json.Unmarshal(file, &forms)
+			if err != nil {
+				resp.WriteHeader(http.StatusInternalServerError)
+				fmt.Fprint(resp, err.Error())
+				return
+			}
+
+			theader, trows := "", ""
+			for idx, form := range forms {
+				v := reflect.ValueOf(form)
+				typeOfForm := v.Type()
+
+				trows += "<tr>"
+				for i := 0; i < v.NumField(); i++ {
+					if idx == 0 {
+						theader += "<th>" + fmt.Sprintf("%s", typeOfForm.Field(i).Name) + "</th>"
+					}
+					trows += "<td>" + fmt.Sprintf("%v", v.Field(i).Interface()) + "</td>"
+				}
+				trows += "</tr>"
+			}
+			theader = "<tr>" + theader + "</tr>"
+
+			tmpl.Parse("{{define \"table-header\"}}" + theader + "{{end}}")
+			tmpl.Parse("{{define \"table-rows\"}}" + trows + "{{end}}")
+		}
 		resp.WriteHeader(http.StatusOK)
-		fmt.Fprint(resp, "under construction")
+		tmpl.ExecuteTemplate(resp, "page", nil)
 	default:
-		log.Println("error no 404")
 		resp.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(resp, "not found")
 	}
@@ -107,9 +170,11 @@ func run() (s *http.Server) {
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		Handler:        mux,
 	}
 
 	go func() {
+		log.Println("Starting server at http://localhost" + port)
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
