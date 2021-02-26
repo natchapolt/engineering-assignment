@@ -174,6 +174,7 @@ func run() (s *http.Server) {
 	}
 
 	go func() {
+		log.Println("Starting server at http://localhost" + port)
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
