@@ -1,3 +1,4 @@
+{{define "page"}}
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,30 +9,22 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Full-stack developer assignment</title>
 </head>
 <body>
 <div class="container">
     <h1>Full-stack developer assignment</h1>
-    <form action="http://localhost:8080" method="POST" content="application/x-www-form-urlencoded">
-        <div class="mb-3">
-            <label for="first_name" class="form-label">First Name</label>
-            <input name="first_name" type="text" class="form-control" id="first_name">
-        </div>
-        <div class="mb-3">
-            <label for="last_name" class="form-label">Last Name</label>
-            <input name="last_name" type="text" class="form-control" id="last_name">
-        </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
-            <input name="email" type="email" class="form-control" id="email">
-        </div>
-        <div class="mb-3">
-            <label for="phone_number" class="form-label">Phone Number</label>
-            <input name="phone_number" type="tel" class="form-control" id="phone_number">
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                {{template "table-header"}}
+            </thead>
+            <tbody>
+                {{template "table-rows"}}
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-primary" onclick="window.location.href='http:\/\/localhost:8080/form.html'">Add Form</button>
 </div>
 
 <!-- Optional JavaScript; choose one of the two! -->
@@ -46,3 +39,4 @@
 -->
 </body>
 </html>
+{{end}}
