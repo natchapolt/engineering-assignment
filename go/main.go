@@ -140,10 +140,8 @@ func handleFunc(resp http.ResponseWriter, req *http.Request) {
 			}
 			theader = "<tr>" + theader + "</tr>"
 
-			if len(forms) > 0 {
-				tmpl.Parse("{{define \"table-header\"}}" + theader + "{{end}}")
-				tmpl.Parse("{{define \"table-rows\"}}" + trows + "{{end}}")
-			}
+			tmpl.Parse("{{define \"table-header\"}}" + theader + "{{end}}")
+			tmpl.Parse("{{define \"table-rows\"}}" + trows + "{{end}}")
 		}
 		resp.WriteHeader(http.StatusOK)
 		tmpl.ExecuteTemplate(resp, "page", nil)
