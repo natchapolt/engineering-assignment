@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -21,11 +22,35 @@ func TestHandleFunc_POST_Success(t *testing.T) {
 	data.Set("phone_number", "0819999999")
 	req, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(data.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	oContent, err := ioutil.ReadFile(dataFile)
+	if err != nil {
+		t.Fail()
+	}
+
+	defer ioutil.WriteFile(dataFile, oContent, os.ModeAppend)
+
 	handleFunc(w, req)
 	if w.Code != http.StatusOK {
 		t.Fail()
 	}
-	ioutil.WriteFile(dataFile, []byte("[]"), os.ModeAppend)
+
+	content, err := ioutil.ReadFile(dataFile)
+	if err != nil {
+		t.Fail()
+	}
+	var forms []formInput
+	err = json.Unmarshal(content, &forms)
+	if err != nil {
+		t.Fail()
+	}
+	form := forms[len(forms)-1]
+	if form.FirstName != data.Get("first_name") ||
+		form.LastName != data.Get("last_name") ||
+		form.Email != data.Get("email") ||
+		form.PhoneNumber != data.Get("phone_number") {
+		t.Fail()
+	}
 }
 
 func TestHandleFunc_GET_Success(t *testing.T) {
