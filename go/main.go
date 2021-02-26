@@ -63,7 +63,12 @@ func handleFunc(resp http.ResponseWriter, req *http.Request) {
 			fmt.Fprint(resp, err.Error())
 			return
 		}
-		f := formInput{}
+		f := formInput{
+			FirstName:   req.PostFormValue("first_name"),
+			LastName:    req.PostFormValue("last_name"),
+			Email:       req.PostFormValue("email"),
+			PhoneNumber: req.PostFormValue("phone_number"),
+		}
 		err = f.validate()
 		if err != nil {
 			resp.WriteHeader(http.StatusBadRequest)
